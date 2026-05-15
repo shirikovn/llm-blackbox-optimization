@@ -1,0 +1,15 @@
+defaults:
+  - function: rosenbrock
+  - optimizer: llm
+  - model: gemma
+  - logger: filesystem
+  - _self_
+
+seed: 42
+
+experiment:
+  steps: 20
+
+x0:
+  - -3.0
+  - 4.0

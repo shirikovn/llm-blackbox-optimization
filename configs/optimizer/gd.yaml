@@ -1,0 +1,3 @@
+_target_: src.optimizers.gd.GradientDescent
+
+lr: 0.001

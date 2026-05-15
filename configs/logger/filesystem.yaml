@@ -1,0 +1,3 @@
+_target_: src.loggers.filesystem_logger.FilesystemLogger
+
+root_dir: outputs

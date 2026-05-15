@@ -1,0 +1,5 @@
+numpy
+matplotlib
+hydra-core
+omegaconf
+ollama
