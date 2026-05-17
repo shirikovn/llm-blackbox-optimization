@@ -1,7 +1,20 @@
 class GradientDescent:
-    def __init__(self, lr=0.001):
+    def __init__(
+        self,
+        logger,
+        lr=0.001,
+    ):
+
+        self.logger = logger
+
         self.lr = lr
 
-    def step(self, x, grad):
+    def step(
+        self,
+        history,
+        step_id,
+    ):
 
-        return x - self.lr * grad
+        last = history[-1]
+
+        return last["x"] - self.lr * last["grad"]

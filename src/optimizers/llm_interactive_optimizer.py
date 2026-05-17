@@ -8,12 +8,14 @@ class InteractiveLLMOptimizer:
         logger,
         history_size=5,
         use_gradient=True,
+        grad_format="raw",
     ):
 
         self.logger = logger
 
         self.history_size = history_size
         self.use_gradient = use_gradient
+        self.grad_format = grad_format
 
     def step(
         self,
@@ -25,6 +27,7 @@ class InteractiveLLMOptimizer:
             history=history,
             use_gradient=self.use_gradient,
             history_size=self.history_size,
+            grad_format=self.grad_format,
         )
 
         self.logger.log_prompt(
