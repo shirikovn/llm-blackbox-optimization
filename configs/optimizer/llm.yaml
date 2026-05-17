@@ -5,3 +5,4 @@ model: ${model.name}
 temperature: 0.0
 history_size: 5
 use_gradient: true
+grad_format: raw
