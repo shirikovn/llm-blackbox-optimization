@@ -1,0 +1,4 @@
+_target_: src.optimizers.heavy_ball.HeavyBall
+
+lr: 0.001
+beta: 0.9
