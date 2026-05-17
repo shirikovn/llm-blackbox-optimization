@@ -14,6 +14,7 @@ class LLMOptimizer:
         history_size=5,
         use_gradient=True,
         grad_format="raw",
+        prompt_template="base",
     ):
 
         self.logger = logger
@@ -25,6 +26,7 @@ class LLMOptimizer:
         self.history_size = history_size
         self.use_gradient = use_gradient
         self.grad_format = grad_format
+        self.prompt_template = prompt_template
 
     def step(
         self,
@@ -37,6 +39,7 @@ class LLMOptimizer:
             use_gradient=self.use_gradient,
             history_size=self.history_size,
             grad_format=self.grad_format,
+            prompt_template=self.prompt_template,
         )
 
         self.logger.log_prompt(

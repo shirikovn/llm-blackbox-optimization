@@ -40,11 +40,39 @@ def format_return_hint(n):
     return "[" + ", ".join(["float"] * n) + "]"
 
 
+def format_header(prompt_template, use_gradient):
+
+    if prompt_template == "base":
+        return ["Minimize the function."]
+
+    if prompt_template == "explanatory":
+        lines = [
+            "You are optimizing a continuous function f: R^n -> R.",
+            "You see the history of points you have visited and the value of f at each.",
+        ]
+
+        if use_gradient:
+            lines.append(
+                "You also see the gradient of f at each point."
+            )
+
+            lines.append(
+                "The gradient points in the direction of steepest ascent -- moving against it decreases f."
+            )
+
+        lines.append("Your goal: suggest the next point that minimizes f.")
+
+        return lines
+
+    raise ValueError(f"unknown prompt_template: {prompt_template}")
+
+
 def build_prompt(
     history,
     use_gradient=True,
     history_size=5,
     grad_format="raw",
+    prompt_template="base",
 ):
 
     history = history[-history_size:]
@@ -53,7 +81,7 @@ def build_prompt(
 
     lines = []
 
-    lines.append("Minimize the function.")
+    lines.extend(format_header(prompt_template, use_gradient))
 
     lines.append("")
 
