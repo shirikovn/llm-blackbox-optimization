@@ -15,6 +15,7 @@ benchmarks.py — стандартные тестовые функции для 
 
 Эти обёртки понадобятся в Блоке 1 для shifted-experiment.
 """
+
 from __future__ import annotations
 import numpy as np
 from dataclasses import dataclass
@@ -38,7 +39,7 @@ class Benchmark:
 # Sphere: f(x) = sum x_i^2,  min at 0
 # -----------------------------------------------------------------------------
 def _sphere_f(x):
-    return np.sum(x ** 2, axis=-1)
+    return np.sum(x**2, axis=-1)
 
 
 def _sphere_grad(x):
@@ -61,7 +62,9 @@ SPHERE = Benchmark(
 # -----------------------------------------------------------------------------
 def _rosenbrock_f(x):
     x = np.asarray(x, dtype=float)
-    return np.sum(100.0 * (x[..., 1:] - x[..., :-1] ** 2) ** 2 + (1.0 - x[..., :-1]) ** 2, axis=-1)
+    return np.sum(
+        100.0 * (x[..., 1:] - x[..., :-1] ** 2) ** 2 + (1.0 - x[..., :-1]) ** 2, axis=-1
+    )
 
 
 def _rosenbrock_grad(x):
@@ -88,7 +91,7 @@ ROSENBROCK = Benchmark(
 # -----------------------------------------------------------------------------
 def _rastrigin_f(x):
     n = x.shape[-1]
-    return 10.0 * n + np.sum(x ** 2 - 10.0 * np.cos(2.0 * np.pi * x), axis=-1)
+    return 10.0 * n + np.sum(x**2 - 10.0 * np.cos(2.0 * np.pi * x), axis=-1)
 
 
 def _rastrigin_grad(x):
@@ -111,7 +114,7 @@ RASTRIGIN = Benchmark(
 # -----------------------------------------------------------------------------
 def _ackley_f(x):
     n = x.shape[-1]
-    mean_sq = np.mean(x ** 2, axis=-1)
+    mean_sq = np.mean(x**2, axis=-1)
     mean_cos = np.mean(np.cos(2.0 * np.pi * x), axis=-1)
     return -20.0 * np.exp(-0.2 * np.sqrt(mean_sq)) - np.exp(mean_cos) + 20.0 + np.e
 
@@ -119,7 +122,7 @@ def _ackley_f(x):
 def _ackley_grad(x):
     n = x.shape[-1]
     eps = 1e-12
-    mean_sq = np.mean(x ** 2)
+    mean_sq = np.mean(x**2)
     s = np.sqrt(mean_sq + eps)
     mean_cos = np.mean(np.cos(2.0 * np.pi * x))
     # d/dx_i of -20 exp(-0.2 s):
@@ -146,7 +149,7 @@ ACKLEY = Benchmark(
 def _griewank_f(x):
     n = x.shape[-1]
     idx = np.arange(1, n + 1)
-    sum_part = np.sum(x ** 2, axis=-1) / 4000.0
+    sum_part = np.sum(x**2, axis=-1) / 4000.0
     prod_part = np.prod(np.cos(x / np.sqrt(idx)), axis=-1)
     return 1.0 + sum_part - prod_part
 
@@ -163,8 +166,10 @@ def _griewank_grad(x):
     # делим аккуратно — может быть ноль
     g_prod = np.zeros_like(x)
     for i in range(n):
-        others = full_prod / cos_vec[i] if abs(cos_vec[i]) > 1e-12 else np.prod(
-            np.delete(cos_vec, i)
+        others = (
+            full_prod / cos_vec[i]
+            if abs(cos_vec[i]) > 1e-12
+            else np.prod(np.delete(cos_vec, i))
         )
         g_prod[i] = -(1.0 / np.sqrt(idx[i])) * sin_vec[i] * others
     # f = 1 + sum - prod → df/dx = g_sum - g_prod
@@ -217,10 +222,16 @@ class ShiftedBenchmark:
 class RotatedBenchmark:
     """tilde_f(x) = f(Q (x - c)).  Q — ортогональная матрица.  Минимум по-прежнему в c."""
 
-    def __init__(self, base: Benchmark, Q: np.ndarray, shift: Optional[np.ndarray] = None):
+    def __init__(
+        self, base: Benchmark, Q: np.ndarray, shift: Optional[np.ndarray] = None
+    ):
         self.base = base
         self.Q = np.asarray(Q, dtype=float)
-        self.shift = np.zeros(self.Q.shape[0]) if shift is None else np.asarray(shift, dtype=float)
+        self.shift = (
+            np.zeros(self.Q.shape[0])
+            if shift is None
+            else np.asarray(shift, dtype=float)
+        )
         self.name = f"{base.name}_rotated"
         self.f_star = base.f_star
         self.domain = base.domain

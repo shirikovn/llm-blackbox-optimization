@@ -10,6 +10,7 @@ llm_interactive.py — LLM-оптимизатор с интерактивным 
 Также есть режим `replay`: ответы заранее даны в файле — для воспроизведения
 прошлых экспериментов без повторного обращения к модели.
 """
+
 from __future__ import annotations
 import json
 import re
@@ -20,7 +21,11 @@ from pathlib import Path
 
 # Точный финальный шаблон V1 из текущего main.tex
 PROMPT_HEADER = "Minimize the function."
-PROMPT_FOOTER = "Propose the next point.\nReturn ONLY: [float, " + "float, " * 10 + "float] (depending on dim)"
+PROMPT_FOOTER = (
+    "Propose the next point.\nReturn ONLY: [float, "
+    + "float, " * 10
+    + "float] (depending on dim)"
+)
 
 
 def format_vec(x: np.ndarray) -> str:
@@ -29,7 +34,9 @@ def format_vec(x: np.ndarray) -> str:
     return "[" + ", ".join(parts) + "]"
 
 
-def build_prompt(history: list[tuple[np.ndarray, float, np.ndarray]], history_len: int = 5) -> str:
+def build_prompt(
+    history: list[tuple[np.ndarray, float, np.ndarray]], history_len: int = 5
+) -> str:
     """history — список (x, f, grad). Берём последние history_len."""
     tail = history[-history_len:]
     lines = [PROMPT_HEADER, ""]
@@ -40,10 +47,12 @@ def build_prompt(history: list[tuple[np.ndarray, float, np.ndarray]], history_le
         lines.append(f"f(x) = {fv:.6e}")
         lines.append(f"grad(x) = {format_vec(g)}")
         lines.append("")
-    lines.append(PROMPT_FOOTER.replace(
-        "[float, " + "float, " * 10 + "float] (depending on dim)",
-        "[" + ", ".join(["float"] * len(history[-1][0])) + "]",
-    ))
+    lines.append(
+        PROMPT_FOOTER.replace(
+            "[float, " + "float, " * 10 + "float] (depending on dim)",
+            "[" + ", ".join(["float"] * len(history[-1][0])) + "]",
+        )
+    )
     return "\n".join(lines)
 
 
@@ -66,7 +75,11 @@ def parse_response(text: str, n: int) -> np.ndarray:
 
 
 def llm_optimize_interactive(
-    f, grad, x0, K, *,
+    f,
+    grad,
+    x0,
+    K,
+    *,
     history_len: int = 5,
     log_path: str | Path | None = None,
     max_parse_retries: int = 3,
@@ -114,7 +127,9 @@ def llm_optimize_interactive(
                 print(f"  [parse error: {e}; retry {attempt + 1}/{max_parse_retries}]")
 
         if x_new is None:
-            print(f"  [step {k+1} failed to parse after {max_parse_retries} attempts]")
+            print(
+                f"  [step {k + 1} failed to parse after {max_parse_retries} attempts]"
+            )
             # повторяем последнюю точку как заглушку
             x_new = xs[-1].copy()
 
@@ -123,16 +138,18 @@ def llm_optimize_interactive(
         history.append((x_new.copy(), fv, gv))
         xs.append(x_new.copy())
         fs.append(fv)
-        log["steps"].append({
-            "k": k + 1,
-            "prompt": prompt,
-            "attempts": attempts,
-            "x": x_new.tolist(),
-            "f": fv,
-            "grad": gv.tolist(),
-        })
+        log["steps"].append(
+            {
+                "k": k + 1,
+                "prompt": prompt,
+                "attempts": attempts,
+                "x": x_new.tolist(),
+                "f": fv,
+                "grad": gv.tolist(),
+            }
+        )
 
-        print(f"  → x_{k+1} = {format_vec(x_new)},  f = {fv:.4e}")
+        print(f"  → x_{k + 1} = {format_vec(x_new)},  f = {fv:.4e}")
 
     if log_path is not None:
         _save_log(log_path, log)
@@ -140,7 +157,11 @@ def llm_optimize_interactive(
 
 
 def llm_optimize_replay(
-    f, grad, x0, K, *,
+    f,
+    grad,
+    x0,
+    K,
+    *,
     replay_log: str | Path,
 ):
     """Воспроизводит траекторию из сохранённого лога.  Полезно, если

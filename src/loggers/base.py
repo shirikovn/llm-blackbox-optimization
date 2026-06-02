@@ -56,3 +56,11 @@ class BaseLogger(ABC):
         self,
     ):
         pass
+
+    @abstractmethod
+    def log_metadata(
+        self,
+        name,
+        value,
+    ):
+        pass

@@ -8,11 +8,7 @@ class Griewank:
 
         i = np.arange(1, n + 1, dtype=float)
 
-        return (
-            1.0
-            + np.sum(x**2) / 4000.0
-            - np.prod(np.cos(x / np.sqrt(i)))
-        )
+        return 1.0 + np.sum(x**2) / 4000.0 - np.prod(np.cos(x / np.sqrt(i)))
 
     def grad(self, x):
 

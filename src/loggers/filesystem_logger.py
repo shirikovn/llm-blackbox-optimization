@@ -13,7 +13,6 @@ class FilesystemLogger(BaseLogger):
         self,
         root_dir="outputs",
     ):
-
         now = datetime.now()
 
         self.run_dir = (
@@ -48,13 +47,20 @@ class FilesystemLogger(BaseLogger):
 
         self.trajectory = []
         self.metrics = {}
+        self.metadata = {}
+
+    def log_metadata(
+        self,
+        name,
+        value,
+    ):
+        self.metadata[name] = value
 
     def log_prompt(
         self,
         step,
         prompt,
     ):
-
         path = self.prompt_dir / f"step_{step:03d}.txt"
 
         with open(path, "w") as f:
@@ -64,7 +70,6 @@ class FilesystemLogger(BaseLogger):
         self,
         filename,
     ):
-
         return self.plot_dir / filename
 
     def log_response(
@@ -72,7 +77,6 @@ class FilesystemLogger(BaseLogger):
         step,
         response,
     ):
-
         path = self.response_dir / f"step_{step:03d}.txt"
 
         with open(path, "w") as f:
@@ -85,7 +89,6 @@ class FilesystemLogger(BaseLogger):
         fx,
         grad,
     ):
-
         self.trajectory.append(
             {
                 "step": step,
@@ -100,14 +103,12 @@ class FilesystemLogger(BaseLogger):
         name,
         value,
     ):
-
         self.metrics[name] = value
 
     def log_error(
         self,
         error,
     ):
-
         path = self.error_dir / "errors.txt"
 
         with open(path, "a") as f:
@@ -118,7 +119,6 @@ class FilesystemLogger(BaseLogger):
         self,
         config,
     ):
-
         path = self.run_dir / "config.yaml"
 
         OmegaConf.save(
@@ -127,7 +127,6 @@ class FilesystemLogger(BaseLogger):
         )
 
     def finalize(self):
-
         trajectory_path = self.run_dir / "trajectory.json"
 
         with open(
@@ -148,6 +147,18 @@ class FilesystemLogger(BaseLogger):
         ) as f:
             json.dump(
                 self.metrics,
+                f,
+                indent=2,
+            )
+
+        metadata_path = self.run_dir / "metadata.json"
+
+        with open(
+            metadata_path,
+            "w",
+        ) as f:
+            json.dump(
+                self.metadata,
                 f,
                 indent=2,
             )

@@ -1,0 +1,26 @@
+_target_: src.functions.transformed.TransformedFunction
+
+base:
+  _target_: src.functions.rosenbrock.Rosenbrock
+
+dim: 2
+
+shift:
+  - 4.0
+  - -3.0
+
+rotation_deg: 35
+
+scale:
+  - 0.3
+  - 2.5
+
+randomize: false
+
+seed: 42
+
+random_shift_range: 8.0
+
+random_scale_range:
+  - 0.25
+  - 4.0

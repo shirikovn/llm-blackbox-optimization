@@ -4,3 +4,5 @@ __pycache__/
 .venv/
 .ruff_cache/
 outputs/
+project_code_for_gpt.txt
+pack.py

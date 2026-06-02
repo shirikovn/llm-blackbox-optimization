@@ -17,10 +17,7 @@ def plot_trajectory_2d(
     # TRAJECTORY
     # =====================================================
 
-    traj = np.array([
-        step["x"]
-        for step in trajectory
-    ])
+    traj = np.array([step["x"] for step in trajectory])
 
     xs_traj = traj[:, 0]
     ys_traj = traj[:, 1]
@@ -35,10 +32,7 @@ def plot_trajectory_2d(
     center_x = np.median(xs_traj)
     center_y = np.median(ys_traj)
 
-    distances = np.sqrt(
-        (xs_traj - center_x) ** 2
-        + (ys_traj - center_y) ** 2
-    )
+    distances = np.sqrt((xs_traj - center_x) ** 2 + (ys_traj - center_y) ** 2)
 
     robust_radius = np.percentile(
         distances,
@@ -59,7 +53,6 @@ def plot_trajectory_2d(
 
     # fallback
     if len(robust_x) < 2:
-
         robust_x = xs_traj
         robust_y = ys_traj
 
@@ -125,13 +118,13 @@ def plot_trajectory_2d(
     # =====================================================
 
     for i in range(resolution):
-
         for j in range(resolution):
-
-            point = np.array([
-                X[i, j],
-                Y[i, j],
-            ])
+            point = np.array(
+                [
+                    X[i, j],
+                    Y[i, j],
+                ]
+            )
 
             value = function.f(point)
 
@@ -170,9 +163,7 @@ def plot_trajectory_2d(
     )
 
     # remove duplicates
-    contour_levels = np.unique(
-        contour_levels
-    )
+    contour_levels = np.unique(contour_levels)
 
     # =====================================================
     # PLOT
@@ -233,7 +224,6 @@ def plot_trajectory_2d(
     outlier_mask = ~mask
 
     if np.any(outlier_mask):
-
         ax.scatter(
             xs_traj[outlier_mask],
             ys_traj[outlier_mask],
@@ -259,9 +249,7 @@ def plot_trajectory_2d(
 
     ax.set_aspect("equal")
 
-    ax.set_title(
-        "Optimization trajectory"
-    )
+    ax.set_title("Optimization trajectory")
 
     ax.set_xlabel("x1")
     ax.set_ylabel("x2")

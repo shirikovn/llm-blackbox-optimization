@@ -53,9 +53,7 @@ def main():
     args = parser.parse_args()
 
     if args.labels and len(args.labels) != len(args.runs):
-        raise ValueError(
-            f"got {len(args.labels)} labels for {len(args.runs)} runs"
-        )
+        raise ValueError(f"got {len(args.labels)} labels for {len(args.runs)} runs")
 
     config_path = Path(args.runs[0]) / "config.yaml"
 

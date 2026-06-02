@@ -9,6 +9,7 @@ classical.py — классические методы оптимизации.
 
 Это позволяет логировать всё единообразно (см. metrics.py).
 """
+
 from __future__ import annotations
 import numpy as np
 from scipy.optimize import minimize
@@ -69,8 +70,8 @@ def adam(f, grad, x0, K, lr=0.01, beta1=0.9, beta2=0.999, eps=1e-8):
         g = grad(x)
         m = beta1 * m + (1 - beta1) * g
         v = beta2 * v + (1 - beta2) * g * g
-        m_hat = m / (1 - beta1 ** k)
-        v_hat = v / (1 - beta2 ** k)
+        m_hat = m / (1 - beta1**k)
+        v_hat = v / (1 - beta2**k)
         x = x - lr * m_hat / (np.sqrt(v_hat) + eps)
         xs.append(x.copy())
         fs.append(float(f(x)))
@@ -93,8 +94,8 @@ def adamw(f, grad, x0, K, lr=0.01, beta1=0.9, beta2=0.999, eps=1e-8, weight_deca
         g = grad(x)
         m = beta1 * m + (1 - beta1) * g
         v = beta2 * v + (1 - beta2) * g * g
-        m_hat = m / (1 - beta1 ** k)
-        v_hat = v / (1 - beta2 ** k)
+        m_hat = m / (1 - beta1**k)
+        v_hat = v / (1 - beta2**k)
         x = x - lr * m_hat / (np.sqrt(v_hat) + eps) - lr * weight_decay * x
         xs.append(x.copy())
         fs.append(float(f(x)))
@@ -117,7 +118,10 @@ def bfgs(f, grad, x0, K, lr=None):
         fs.append(float(f(xk)))
 
     minimize(
-        f, x0, jac=grad, method="BFGS",
+        f,
+        x0,
+        jac=grad,
+        method="BFGS",
         callback=callback,
         options={"maxiter": K, "gtol": 0.0, "disp": False},
     )
@@ -147,7 +151,10 @@ ALL_OPTIMIZERS = {
 # -----------------------------------------------------------------------------
 def grid_search_lr(
     optimizer_name: str,
-    f, grad, x0, K,
+    f,
+    grad,
+    x0,
+    K,
     lrs: list[float] | None = None,
     extra_hparams: dict | None = None,
 ) -> tuple[float, float]:

@@ -7,7 +7,6 @@ from omegaconf import DictConfig
 from src.experiment import Experiment
 
 
-
 @hydra.main(
     version_base=None,
     config_path="configs",

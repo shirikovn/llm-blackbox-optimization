@@ -8,6 +8,7 @@ metrics.py — метрики оценки траектории оптимиза
     f_star : float           — известное значение в минимуме
     x_star : np.ndarray (n,) — известный аргумент минимума (опц., для distance)
 """
+
 from __future__ import annotations
 import numpy as np
 from typing import Optional
@@ -103,8 +104,12 @@ def all_metrics_for_trajectory(
         "T_eps": time_to_eps(fs, f_star, eps),
         "success": success(fs, f_star, eps),
         "traj_length": trajectory_length(xs),
-        "mean_cosine_antigrad": float(np.nanmean(cos_grad)) if np.any(np.isfinite(cos_grad)) else float("nan"),
-        "mean_step_consistency": float(np.nanmean(cos_step)) if np.any(np.isfinite(cos_step)) else float("nan"),
+        "mean_cosine_antigrad": float(np.nanmean(cos_grad))
+        if np.any(np.isfinite(cos_grad))
+        else float("nan"),
+        "mean_step_consistency": float(np.nanmean(cos_step))
+        if np.any(np.isfinite(cos_step))
+        else float("nan"),
         "median_step_size": float(np.nanmedian(sizes)),
         "max_step_size": float(np.nanmax(sizes)),
         # Векторные — для рисунков

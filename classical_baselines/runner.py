@@ -12,6 +12,7 @@ runner.py — главный CLI-скрипт.
 
 Примеры запуска — смотри в README.md.
 """
+
 from __future__ import annotations
 import argparse
 import json
@@ -37,8 +38,13 @@ EXTRA_HP = {
 }
 
 
-def make_starts(n: int, J: int, domain: tuple[float, float], seed: int = 42,
-                shift_from_origin: float = 1.0) -> np.ndarray:
+def make_starts(
+    n: int,
+    J: int,
+    domain: tuple[float, float],
+    seed: int = 42,
+    shift_from_origin: float = 1.0,
+) -> np.ndarray:
     """J случайных стартов в domain, сдвинутых от 0 для борьбы с origin-bias."""
     rng = np.random.default_rng(seed)
     lo, hi = domain
@@ -46,7 +52,9 @@ def make_starts(n: int, J: int, domain: tuple[float, float], seed: int = 42,
     # отталкиваем точки от нуля: если близко к 0, прибавляем shift
     norms = np.linalg.norm(starts, axis=1, keepdims=True)
     too_close = norms < shift_from_origin
-    starts = np.where(too_close, starts + shift_from_origin * np.sign(starts + 1e-12), starts)
+    starts = np.where(
+        too_close, starts + shift_from_origin * np.sign(starts + 1e-12), starts
+    )
     return starts
 
 
@@ -73,7 +81,11 @@ def cmd_tune_lr(args):
                 lrs_per_start = []
                 for j, x0 in enumerate(starts):
                     lr, final = grid_search_lr(
-                        opt, b.f, b.grad, x0, args.K,
+                        opt,
+                        b.f,
+                        b.grad,
+                        x0,
+                        args.K,
                         extra_hparams=EXTRA_HP[opt],
                     )
                     finals.append(final)
@@ -86,7 +98,9 @@ def cmd_tune_lr(args):
                     "mean_final": mean_final,
                     "per_start_lrs": lrs_per_start,
                 }
-                print(f"  {opt:12} median_lr={best_lr:.4f}  mean_final={mean_final:.4e}")
+                print(
+                    f"  {opt:12} median_lr={best_lr:.4f}  mean_final={mean_final:.4e}"
+                )
 
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
@@ -99,7 +113,9 @@ def cmd_tune_lr(args):
 def cmd_run_classical(args):
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    import os; os.environ["BLOCK2_OUTDIR"] = str(outdir)
+    import os
+
+    os.environ["BLOCK2_OUTDIR"] = str(outdir)
 
     # Загружаем lrs (либо tuned, либо дефолт)
     tuned = {}
@@ -124,7 +140,9 @@ def cmd_run_classical(args):
                     with np.errstate(over="ignore", invalid="ignore"):
                         xs, fs = opt(b.f, b.grad, x0, args.K, **kwargs)
                     elapsed = time.time() - t0
-                    m = all_metrics_for_trajectory(xs, fs, b.grad, b.f_star, x_star, eps=args.eps)
+                    m = all_metrics_for_trajectory(
+                        xs, fs, b.grad, b.f_star, x_star, eps=args.eps
+                    )
                     rec = {
                         "function": fname,
                         "n": n,
@@ -169,16 +187,23 @@ def cmd_run_llm(args):
         sys.exit(f"start_idx {args.start_idx} >= J {args.J}")
     x0 = starts[args.start_idx]
 
-    log_path = outdir / f"llm_{args.model}_{args.function}_n{n}_start{args.start_idx}.json"
+    log_path = (
+        outdir / f"llm_{args.model}_{args.function}_n{n}_start{args.start_idx}.json"
+    )
 
-    print(f"Run LLM '{args.model}' on {args.function} (n={n}), start #{args.start_idx} = {x0}")
+    print(
+        f"Run LLM '{args.model}' on {args.function} (n={n}), start #{args.start_idx} = {x0}"
+    )
     print(f"K = {args.K} steps,  log → {log_path}")
 
     if args.replay:
         xs, fs = llm_optimize_replay(b.f, b.grad, x0, args.K, replay_log=args.replay)
     else:
         xs, fs = llm_optimize_interactive(
-            b.f, b.grad, x0, args.K,
+            b.f,
+            b.grad,
+            x0,
+            args.K,
             history_len=args.history_len,
             log_path=log_path,
         )
@@ -197,7 +222,10 @@ def cmd_run_llm(args):
         "fs": fs.tolist(),
         **m,
     }
-    out = outdir / f"llm_run_{args.model}_{args.function}_n{n}_start{args.start_idx}_summary.json"
+    out = (
+        outdir
+        / f"llm_run_{args.model}_{args.function}_n{n}_start{args.start_idx}_summary.json"
+    )
     with open(out, "w") as f:
         json.dump(rec, f, indent=2)
     print(f"\n[summary saved to {out}]")
@@ -215,7 +243,9 @@ def cmd_compare(args):
     """Свести classical_runs.json + все llm-*_summary.json в одно."""
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    import os; os.environ["BLOCK2_OUTDIR"] = str(outdir)
+    import os
+
+    os.environ["BLOCK2_OUTDIR"] = str(outdir)
     all_recs = []
     cl_path = outdir / "classical_runs.json"
     if cl_path.exists():
@@ -242,7 +272,12 @@ def cmd_compare(args):
 
     # Строим графики
     if not args.no_plots:
-        from plots import plot_convergence_grid, plot_trajectories_2d, plot_metrics_heatmap
+        from plots import (
+            plot_convergence_grid,
+            plot_trajectories_2d,
+            plot_metrics_heatmap,
+        )
+
         plot_convergence_grid(all_recs, outdir / "fig_convergence_grid.png")
         plot_trajectories_2d(all_recs, outdir / "fig_trajectories_2d.png")
         plot_metrics_heatmap(all_recs, outdir / "fig_metrics_heatmap.png")
@@ -255,33 +290,48 @@ def _print_summary_table(recs, eps):
         key = (r["function"], r["n"], r["optimizer"])
         by_key.setdefault(key, []).append(r)
 
-    print(f"\n{'function':12} {'n':>3} {'optimizer':14} "
-          f"{'mean_gap':>11} {'best_gap':>11} "
-          f"{'succ_rate':>9} {'mean_T':>7} {'mean_cos':>9}")
+    print(
+        f"\n{'function':12} {'n':>3} {'optimizer':14} "
+        f"{'mean_gap':>11} {'best_gap':>11} "
+        f"{'succ_rate':>9} {'mean_T':>7} {'mean_cos':>9}"
+    )
     print("-" * 95)
     rows_for_csv = []
     for key in sorted(by_key.keys()):
         rs = by_key[key]
-        mean_gap = float(np.mean([r["final_gap"] for r in rs if np.isfinite(r["final_gap"])]))
+        mean_gap = float(
+            np.mean([r["final_gap"] for r in rs if np.isfinite(r["final_gap"])])
+        )
         best_gap = float(np.min([r["best_gap"] for r in rs]))
         succ = float(np.mean([1.0 if r["success"] else 0.0 for r in rs]))
         T_vals = [r["T_eps"] for r in rs if r["T_eps"] is not None]
         mean_T = float(np.mean(T_vals)) if T_vals else float("nan")
         mean_cos = float(np.nanmean([r["mean_cosine_antigrad"] for r in rs]))
-        print(f"{key[0]:12} {key[1]:>3} {key[2]:14} "
-              f"{mean_gap:>11.3e} {best_gap:>11.3e} "
-              f"{succ:>9.2f} {mean_T:>7.1f} {mean_cos:>9.3f}")
-        rows_for_csv.append({
-            "function": key[0], "n": key[1], "optimizer": key[2],
-            "mean_gap": mean_gap, "best_gap": best_gap,
-            "success_rate": succ, "mean_T_eps": mean_T, "mean_cosine_antigrad": mean_cos,
-        })
+        print(
+            f"{key[0]:12} {key[1]:>3} {key[2]:14} "
+            f"{mean_gap:>11.3e} {best_gap:>11.3e} "
+            f"{succ:>9.2f} {mean_T:>7.1f} {mean_cos:>9.3f}"
+        )
+        rows_for_csv.append(
+            {
+                "function": key[0],
+                "n": key[1],
+                "optimizer": key[2],
+                "mean_gap": mean_gap,
+                "best_gap": best_gap,
+                "success_rate": succ,
+                "mean_T_eps": mean_T,
+                "mean_cosine_antigrad": mean_cos,
+            }
+        )
 
     # сохраняем агрегированную таблицу в CSV рядом с combined
     import csv
+
     # outdir передаётся через args, но здесь его нет — определим через первый rec
     # или через переменную окружения, которую установит вызывающий
     import os
+
     csv_path = Path(os.environ.get("BLOCK2_OUTDIR", "logs")) / "summary_table.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     with open(csv_path, "w", newline="") as f:
@@ -303,8 +353,11 @@ def main():
     p_tl = sp.add_parser("tune-lr", help="Подобрать lr для классических методов")
     p_tl.add_argument("--functions", nargs="+", default=list(ALL_BENCHMARKS.keys()))
     p_tl.add_argument("--dims", nargs="+", type=int, default=[2, 5])
-    p_tl.add_argument("--optimizers", nargs="+",
-                      default=["gd", "heavy_ball", "nesterov", "adam", "adamw"])
+    p_tl.add_argument(
+        "--optimizers",
+        nargs="+",
+        default=["gd", "heavy_ball", "nesterov", "adam", "adamw"],
+    )
     p_tl.add_argument("--J", type=int, default=10)
     p_tl.add_argument("--K", type=int, default=50)
     p_tl.add_argument("--seed", type=int, default=42)
@@ -315,21 +368,25 @@ def main():
     p_rc = sp.add_parser("run-classical", help="Прогон классических методов")
     p_rc.add_argument("--functions", nargs="+", default=list(ALL_BENCHMARKS.keys()))
     p_rc.add_argument("--dims", nargs="+", type=int, default=[2, 5])
-    p_rc.add_argument("--optimizers", nargs="+",
-                      default=list(ALL_OPTIMIZERS.keys()))
+    p_rc.add_argument("--optimizers", nargs="+", default=list(ALL_OPTIMIZERS.keys()))
     p_rc.add_argument("--J", type=int, default=10)
     p_rc.add_argument("--K", type=int, default=50)
     p_rc.add_argument("--seed", type=int, default=42)
     p_rc.add_argument("--eps", type=float, default=1e-3)
-    p_rc.add_argument("--tuned-lrs", default="logs/tuned_lrs.json",
-                      help="JSON с оптимальными lr (см. tune-lr)")
+    p_rc.add_argument(
+        "--tuned-lrs",
+        default="logs/tuned_lrs.json",
+        help="JSON с оптимальными lr (см. tune-lr)",
+    )
     p_rc.add_argument("--default-lr", type=float, default=0.01)
     p_rc.add_argument("--outdir", default="logs")
     p_rc.set_defaults(func=cmd_run_classical)
 
     # run-llm
     p_rl = sp.add_parser("run-llm", help="Один интерактивный запуск LLM")
-    p_rl.add_argument("--model", required=True, help="Имя модели (claude/gpt/gemini/deepseek)")
+    p_rl.add_argument(
+        "--model", required=True, help="Имя модели (claude/gpt/gemini/deepseek)"
+    )
     p_rl.add_argument("--function", required=True, choices=list(ALL_BENCHMARKS.keys()))
     p_rl.add_argument("--n", type=int, default=2)
     p_rl.add_argument("--J", type=int, default=10)
@@ -338,8 +395,11 @@ def main():
     p_rl.add_argument("--seed", type=int, default=42)
     p_rl.add_argument("--eps", type=float, default=1e-3)
     p_rl.add_argument("--history-len", type=int, default=5)
-    p_rl.add_argument("--replay", default=None,
-                      help="Воспроизвести из существующего log-json (без LLM)")
+    p_rl.add_argument(
+        "--replay",
+        default=None,
+        help="Воспроизвести из существующего log-json (без LLM)",
+    )
     p_rl.add_argument("--outdir", default="logs")
     p_rl.set_defaults(func=cmd_run_llm)
 

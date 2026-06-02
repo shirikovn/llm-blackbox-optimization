@@ -12,14 +12,21 @@ class Experiment:
         logger,
         config,
     ):
-
         self.function = function
         self.optimizer = optimizer
         self.logger = logger
         self.config = config
 
-    def run(self):
+        if hasattr(function, "A"):
+            logger.log_metadata(
+                "transform",
+                {
+                    "A": function.A.tolist(),
+                    "b": function.b.tolist(),
+                },
+            )
 
+    def run(self):
         x = np.array(
             self.config.x0,
             dtype=float,
