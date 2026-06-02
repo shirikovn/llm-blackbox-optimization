@@ -11,10 +11,6 @@ shift:
 
 rotation_deg: 35
 
-scale:
-  - 0.3
-  - 2.5
-
 randomize: false
 
 seed: 42

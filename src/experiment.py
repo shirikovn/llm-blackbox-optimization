@@ -2,6 +2,7 @@ import numpy as np
 
 from src.visualization.trajectory import plot_trajectory_2d
 from src.visualization.convergence import plot_convergence
+from src.visualization.function_preview import plot_function_preview
 
 
 class Experiment:
@@ -33,6 +34,11 @@ class Experiment:
         )
 
         history = []
+
+        plot_function_preview(
+            function=self.function,
+            save_path=self.logger.get_plot_path("function_preview.png"),
+        )
 
         for step in range(self.config.experiment.steps):
             fx = self.function.f(x)
